@@ -38,6 +38,7 @@
     "raven": "^1.2.1",
     "reflect-node": "^0.2.1",
     "request": "^2.82.0",
+    "selenium-webdriver": "^3.6.0",
     "simpl-schema": "^0.3.2",
     "survey-knockout": "^0.10.4",
     "sweetalert2": "^4.3.3",

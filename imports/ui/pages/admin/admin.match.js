@@ -103,7 +103,7 @@ Template.AdminMatchSection.events({
 
       //console.log(arrComodations[0]._id);
       //Evaluating First Accomodation on server, needed to do for each
-      var clientResult = Meteor.apply('evaluateAccomodation',
+      /*var clientResult = Meteor.apply('evaluateAccomodation',
           [arrComodations[0]._id]
         , {returnStubValue: true},
 
@@ -111,11 +111,10 @@ Template.AdminMatchSection.events({
             //console.log("result");
             //Here have to update the progress of the bar
         }
-      );
-      
-      let st = (100/Math.floor((Math.random() * 100) + 50));
-      //alert(st);
-      move(st);
+      );*/
+      let acc = AccommodationsT.find().count();
+      let st = (100/acc);
+      move(st,acc);
 
       
       
@@ -194,26 +193,39 @@ function generateTable(template) {
       tableBody.append("</tr>");
   });
 }
-function move(num){
+function move(num, tot){
   var elem = document.getElementById("myBar");   
-  var width = 10;
-  var id = setInterval(frame, 100);
-  function frame() {
-      if (width >= 100) {
-      clearInterval(id);
-      //alert("Hi I'm an alert!")
-      Session.set('showMap',true);
+  var width = 0;
+  //var id = setInterval(frame, 100);
+  for(i=0; i < tot; i++){
+    //alert(i) 
+    Meteor.call('dummyAcc', i, function(error, result){
+      if(error){
+          console.log(error);
       } else {
-      width+=num; 
-      if(width>100){
-        width = 100;
+        if (result){
+           //alert("I'm in!")
+        if (width >= 100) {
+          clearInterval(id);
+          //alert("Hi I'm an alert!")
+          
+          } else {
+          width+=num; 
+          if(width>=100){
+            width = 100;
+            Session.set('showMap',true);
+          }         
+            
+          elem.style.width = width + '%';
+          elem.innerHTML = (width.toPrecision(3) * 1  + '%') ;
+            
+            
+          }
+        }
+        
+      }
+  });
 
-      }
-      elem.style.width = width + '%'; 
-      
-      Meteor.subscribe('accommodations.all');
-      elem.innerHTML = 
-      Accommodations.find().count()+" accommodations: " +(width.toPrecision(3) * 1  + '%') ;
-      }
-    }
+    
+  }
 }

@@ -328,9 +328,25 @@ Meteor.methods({
   'event.insert': function (event) {
     return Events.insert(event)
   },
+
+//dummy function for the updating of the progress bar
+  'dummyAcc'(id){
+    let res;
+    if(id>=0){
+      console.log("OK, work done!")
+      res = true;
+      console.log(res)
+    }
+    else{
+      res = false;
+    }
+    return res;
+  },
 });
 
 function existsSync(filename) {
   let fullPath = path.join(process.cwd(), '../server/images/uploads/ids/', filename);
   return fs.existsSync(fullPath)
 }
+
+
