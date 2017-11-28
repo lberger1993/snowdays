@@ -39,8 +39,25 @@ describe('Login Page', function(){
        .then(done);
     });
 
-    after(function quitWebdriver(done){
-        driver.quit()
-        .then(done);
-    });
+    it("Admin match List", function(done) {
+        driver.get("http://localhost:3000/admin/admin");
+        driver.wait(until.elementLocated(By.id("match")), 5000)
+        .click()
+        .then(function(){
+            let matchPaticipant = driver.findElement(By.id("matchingParticipants"));
+            matchPaticipant.click()
+            .then(function() {
+                return driver.wait(until.elementsLocated(By.id("MatchingParticipants_table")),5000)
+            })
+            .then(function(element){
+                assert.isNotEmpty(element);
+            })
+            .then(done);
+        });
+    })
+
+    // after(function quitWebdriver(done){
+    //     driver.quit()
+    //     .then(done);
+    // });
 })
