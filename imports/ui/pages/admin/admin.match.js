@@ -10,7 +10,8 @@ import moment from "moment";
 import {deepFlatten, deepPick, deepFind} from '/lib/js/utilities'
 
 //AccomodationT = new Mongo.Collection('accommodations');
-
+var currentstep=0;
+var arrComodations;
 const matchingParticipantsIndices = {
       'host': 1,
       'hostPhoneNumber':1,
@@ -99,8 +100,9 @@ Template.AdminMatchSection.events({
       Meteor.subscribe("accommodations.all");
       //console.log(AccommodationsT.find({}, {fields: {'_id':1}}).count());
 
-      var arrComodations=AccommodationsT.find({}, {fields: {'_id':1}}).fetch();
+      arrComodations=AccommodationsT.find({}, {fields: {'_id':1}}).fetch();
 
+      evalNextAccomodation();
       //console.log(arrComodations[0]._id);
       //Evaluating First Accomodation on server, needed to do for each
       /*var clientResult = Meteor.apply('evaluateAccomodation',
@@ -112,9 +114,9 @@ Template.AdminMatchSection.events({
             //Here have to update the progress of the bar
         }
       );*/
-      let acc = AccommodationsT.find().count();
-      let st = (100/acc);
-      move(st,acc);
+      //let acc = AccommodationsT.find().count();
+      //let st = (100/acc);
+      //move(st,acc);
 
       
       
@@ -192,6 +194,45 @@ function generateTable(template) {
       });
       tableBody.append("</tr>");
   });
+}
+function evalNextAccomodation()
+{
+  var clientResult = Meteor.apply('evaluateAccomodation',
+      [arrComodations[currentstep]._id]
+    , {returnStubValue: true},
+
+      function(err, evalResult) {
+        currentstep=currentstep+1;
+        setProgress(currentstep,arrComodations.length );
+        if(currentstep<arrComodations.length)
+        {
+          evalNextAccomodation();
+        }else
+        {
+          Session.set('showMap',true);
+        }
+        
+        //console.log("result");
+        //Here have to update the progress of the bar
+    }
+    );
+}
+function setProgress(step, total)
+{
+  var elem = document.getElementById("myBar");   
+  var width = (step/total)*100;
+  
+  if(width>=100){
+    width = 100;
+    Session.set('showMap',true);
+  }         
+    
+  elem.style.width = width + '%';
+  elem.innerHTML = (width.toPrecision(3) * 1  + '%') ;
+    
+
+    
+  
 }
 function move(num, tot){
   var elem = document.getElementById("myBar");   
