@@ -9,8 +9,8 @@
                 <li class="sn-menu-item nav-item {{isActive 'AccommodationSection'}}" id="accommodation">
                     <a class="sn-nav-link" href><i class="fa fa-home" aria-hidden="true"></i> Accommodation</a>
                 </li>
-                <li class="sn-menu-item nav-item {{isActive 'WGSection'}}" id="wg">
-                    <a class="sn-nav-link" href> WG</a>
+                <li class="sn-menu-item nav-item {{isActive 'ResultSection'}}" id="result">
+                    <a class="sn-nav-link" href> Results</a>
                 </li>
             </ul>
         </div>
@@ -87,7 +87,13 @@
                     <i class="fa fa-share-alt" aria-hidden="true"></i> Matching
                 </button>
             </div>
+            <div >
+                    <button type="submit" class="sn-btn-blue mb-2"  id="saveResult">
+                        <i class="fa fa-download" aria-hidden="true"></i> Save
+                    </button>
+                </div>
             {{#if isCSVReady}}
+            
             <div>
                 <button type="button" class="sn-btn-outline-green sn-full-width" id="download_csv_initial">
                     <i class="fa fa-cloud-download" aria-hidden="true"></i> 1st to CSV 
@@ -126,21 +132,19 @@
 
    </div>
 </template>
-<template name="WGSection">
+<template name="ResultSection">
     <div>
-        <h2>3. Matching WG with Accommodation</h2>
-        {{#if isWGMatchingReady}}
-            <button type="submit" class="sn-btn-blue mb-2"  id="matchingWG">
-                <i class="fa fa-share-alt" aria-hidden="true"></i> Matching
-            </button>
+        <h2>3. Participant Result</h2>
+        <div class='row'>
             <div>
-                <!-- <table class="table table-sm table-hover animated" id="MatchingWG_table" style="margin-top: 1em">
-                    <thead></thead>
-                    <tbody></tbody>
-                </table> -->
+                <button type="button" class="sn-btn-outline-green sn-full-width" id="download_csv_DB">
+                    <i class="fa fa-cloud-download" aria-hidden="true"></i> CSV 
+                </button>
             </div>
-        {{else}}
-            <div>Hello</div>
-        {{/if}}
+        </div>
+        <table class="table table-sm table-hover animated" id="result_table" style="margin-top: 1em">
+            <thead></thead>
+            <tbody></tbody>
+        </table> 
     </div>
 </template>

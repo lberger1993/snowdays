@@ -158,10 +158,14 @@ Schemas.Requestor = new SimpleSchema({
 
 
 Schemas.Info = new SimpleSchema({
-    requesting_number:{
-        type: String,
-        optional: true
-    },
+  requesting_number:{
+    type: String,
+    optional: true
+  },
+  buszone: {
+    type: String,
+    optional: true
+  },
   accommodation: {
     type: String,
     optional: true
@@ -244,7 +248,7 @@ Schemas.Birth = new SimpleSchema({
 Schemas.Participant = new SimpleSchema({
   _id: {
     type: String,
-    regEx: SimpleSchema.RegEx.Id
+    // regEx: SimpleSchema.RegEx.Id
   },
   owner: {
     type: String,
