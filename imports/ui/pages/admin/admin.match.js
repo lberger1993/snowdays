@@ -2,6 +2,7 @@
 import "./admin.match.html";
 import MatchingParticipants from '/imports/collections/matchingresults';
 import AccommodationsT from '/imports/collections/accommodations';
+import BusZones from '/imports/collections/buszone';
 import "/imports/ui/components/loader/loader";
 
 import jwt from 'jsonwebtoken';
@@ -12,6 +13,7 @@ import {deepFlatten, deepPick, deepFind} from '/lib/js/utilities'
 //AccomodationT = new Mongo.Collection('accommodations');
 var currentstep=0;
 var arrComodations;
+var mapReady;
 const matchingParticipantsIndices = {
       'host': 1,
       'hostPhoneNumber':1,
@@ -35,15 +37,20 @@ let client = new raven.Client('https://7b01834070004a4a91b5a7ed14c0b411:79de4d1b
 raven.patchGlobal(client);
 
 Template.AdminMatchSection.onCreated(function () {
-  
+  GoogleMaps.ready('map', function(map) {
+    mapReady=map;
+    //loadMap();
+ });
   
   //alert(AccomodationT.find().count());
   // generate dummy content
   Meteor.startup(function () {
     Meteor.subscribe('MatchingParticipants.all');
     Meteor.subscribe("accommodations.all");
+    Meteor.subscribe("buszones.all");
+
     //alert(MatchingParticipants.find().count());
-    if (MatchingParticipants.find().count() === 0) {
+    /*if (MatchingParticipants.find().count() === 0) {
         MatchingParticipants.insert({
           _id: '501',
           host: 'Anna2',
@@ -56,7 +63,9 @@ Template.AdminMatchSection.onCreated(function () {
           University: 'UNIBZ',
           Accommodation: 'Rigler'
         });
-    }
+    }*/
+    GoogleMaps.load({ v: '3', key: 'AIzaSyAPuyAsNeq6kyq0rXEjBDRfzHQYlQ2vrHw'});
+
   });
     Session.set('showMap',false);
     Session.set('displayMatchingList',false);
@@ -91,6 +100,16 @@ Template.AdminMatchSection.helpers({
     isLoadingHelper: function(){
       return Session.get('isLoading');
     },
+    mapOptions: function() {
+      var myLatLng = {lat: 46.49502, lng:  11.33952};
+      
+      if (GoogleMaps.loaded()) {
+        return {
+          center: myLatLng,
+          zoom: 14
+        };
+      }
+    },
 })
 
 Template.AdminMatchSection.events({
@@ -103,28 +122,12 @@ Template.AdminMatchSection.events({
       arrComodations=AccommodationsT.find({}, {fields: {'_id':1}}).fetch();
 
       evalNextAccomodation();
-      //console.log(arrComodations[0]._id);
-      //Evaluating First Accomodation on server, needed to do for each
-      /*var clientResult = Meteor.apply('evaluateAccomodation',
-          [arrComodations[0]._id]
-        , {returnStubValue: true},
 
-          function(err, evalResult) {
-            //console.log("result");
-            //Here have to update the progress of the bar
-        }
-      );*/
-      //let acc = AccommodationsT.find().count();
-      //let st = (100/acc);
-      //move(st,acc);
-
-      
-      
       
     },
     
     'click #matchingParticipants': function(event,template) {
-      debugger;
+      //debugger;
       var width = 10;
       var id = setInterval(frame, 10);
       let collection = template.collection.get();
@@ -178,7 +181,7 @@ function generateTable(template) {
       // get labels from schema schema
       tableHead.append("<th class='animated fadeIn'>" + (_.isNull(schema) ? key : schema.label(key)) + "</th>");
   });
-  debugger;
+  //debugger;
   tableHead.append("</tr>");
 
   // BODY
@@ -195,6 +198,52 @@ function generateTable(template) {
       tableBody.append("</tr>");
   });
 }
+function loadMap()
+{
+     Meteor.subscribe("accommodations.all");
+     Meteor.subscribe("buszones.all");
+
+     var arrComodations=AccommodationsT.find().fetch();
+     var markers= [];
+     for (var index = 0; index < arrComodations.length; index++) {
+       var accommodation = arrComodations[index];
+       var arrlatlng= accommodation.coordinates.split(",");
+       //debugger;
+       var objLatLng = {lat: parseFloat( arrlatlng[0]),lng: parseFloat( arrlatlng[1])};
+       markers=getMultipleMarkersCant(objLatLng,accommodation.capacity ,markers); 
+     }
+
+     var markerCluster = new MarkerClusterer(mapReady.instance, markers,
+      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+      var pinColor = "FE7569";
+      var pinImage = new google.maps.MarkerImage("https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=bus|" + pinColor,
+          new google.maps.Size(21, 34),
+          new google.maps.Point(0,0),
+          new google.maps.Point(10, 34));
+
+      var arrBusZones= BusZones.find().fetch();
+      debugger;
+      for (var index = 0; index < arrBusZones.length; index++) {
+        var bus = arrBusZones[index];
+        var objLatLng = {lat: bus.lat ,lng: bus.lng };
+        addMarker(objLatLng,mapReady.instance,(index+1).toString(),pinImage);
+        var regionCoord=[];
+        for (var j = 0; j < arrComodations.length; j++) {
+          var accomodation = arrComodations[j];
+          if(accomodation.busZone==bus._id)
+          {
+            var arrlatlng= accommodation.coordinates.split(",");
+            var objLatLng = {lat: parseFloat( arrlatlng[0]),lng: parseFloat( arrlatlng[1])};
+            regionCoord.push(objLatLng);
+          }
+          
+        }
+        addPolygon(mapReady.instance,regionCoord,'#FFCC00',0.8, 2,'#FFCC00', 0.5);
+        
+      }
+
+}
 function evalNextAccomodation()
 {
   var clientResult = Meteor.apply('evaluateAccomodation',
@@ -209,7 +258,8 @@ function evalNextAccomodation()
           evalNextAccomodation();
         }else
         {
-          Session.set('showMap',true);
+
+          loadMap();
         }
         
         //console.log("result");
@@ -269,4 +319,43 @@ function move(num, tot){
 
     
   }
+}
+function getMultipleMarkersCant(LatLng, cant,markers)  
+{
+  
+
+  for (var index = 0; index < cant; index++) {
+    var marker = new google.maps.Marker({
+      position: LatLng,
+      label: '1'
+    });
+    markers.push(marker);
+    
+  }
+  return markers;
+}
+function addMarker(LatLng,gmap,title, icon)
+{
+  
+  var marker = new google.maps.Marker({
+    position: LatLng,
+    map: gmap,
+    icon: icon,
+    title: title
+  });
+}
+function addPolygon (gmap, arrCoords, strokeColor, strokeOpacity, strokeWeight, fillColor, fillOpacity)
+{
+  
+  // Construct the polygon.
+  var bermudaTriangle = new google.maps.Polygon({
+    paths: arrCoords,
+    strokeColor: strokeColor ,
+    strokeOpacity: strokeOpacity,
+    strokeWeight: strokeWeight,
+    fillColor: fillColor,
+    fillOpacity: fillOpacity
+  });
+  bermudaTriangle.setMap(gmap);
+
 }
