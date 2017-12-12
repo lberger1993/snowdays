@@ -44,31 +44,6 @@ const ParticipantsIndices = {
   'info.buszone':"1",
   university:"WHU"
 }
-let mockPostResult = {
-  "data": [
-    {
-      "_id":"C5S9sNKNmo7CCMt8fu",
-      "_university_id": 2,
-      "_university_name": "WHU",
-      "_bus_id": 1,
-      "_accommondation_details": {
-        "id": 5,
-        "name": "GALILEI",
-        "bus_zone": 1
-      }
-    },
-    {
-      "_id":"C5S9sNKNmo7CCMt8Tt",
-      "_university_id": 2,
-      "_university_name": "Universita di Bologna",
-      "_bus_id": 1,
-      "_accommondation_details": {
-        "id": 5,
-        "name": "GALILEI",
-        "bus_zone": 1
-      }
-    }
-  ]}
 
 Template.AdminMatchSection.onCreated(function () {
   Session.set('subtab', 'BusSection');
@@ -97,7 +72,6 @@ Template.AdminMatchSection.helpers({
 Template.AdminMatchSection.events({
 
     'click .sn-menu-item': (event, template) => {
-      debugger;
       switch (event.currentTarget.id) {
         case 'bus':
          Session.set('subtab', 'BusSection');
@@ -142,7 +116,6 @@ Template.ResultSection.onRendered({
 Template.ResultSection.onCreated(function () {  
 
   let template = Template.instance();
-  debugger;
   template.flattenedFields = new ReactiveVar(ParticipantsIndices);
   
   template.collection = new ReactiveVar({
@@ -154,7 +127,6 @@ Template.ResultSection.onCreated(function () {
   });
   let collection = template.collection.get();
   Meteor.subscribe("participants", () => {
-       debugger;
        console.log('load data', Participants.find().fetch());
       setTimeout(() => {
         generateTableForDB(template,'#result_table');
@@ -217,7 +189,6 @@ Template.ResultSection.events({
                     options['filename'] = filename;
                     options['download'] = download;
                     let encoded = jwt.sign(options, 'secret', {expiresIn: 60});
-                    debugger;
                     Meteor.setTimeout(function () {
                         Router.go('/csv/' + encoded);
                     }, 300)
@@ -287,7 +258,6 @@ Template.AccommodationSection.events({
     displayFileNameDialog(collection);
   },
   'click #saveResult': function(event,template) {
-    debugger;
      let s = Participants.find({_id : 1021}).fetch();
      s;
     console.log(Participants.find().fetch());
@@ -341,18 +311,20 @@ let steps = [
       preConfirm: function () {
         return new Promise(function (resolve) {
           results = {}
-          // if(selectedResult === '1') {
-          //   results = JSON.parse(Session.get('matchingInitialResults')).data;
-          // } else if(selectedResult === '2'){
-          //   results = JSON.parse(Session.get('matchingWGResults')).data;
-          // } else {
-          //   results = JSON.parse(Session.get('matchingInitialResults')).data.concat(JSON.parse(Session.get('matchingWGResults')).data);
-          // }
+          if(selectedResult === '1') {
+            results = JSON.parse(Session.get('matchingInitialResults')).data;
+          } else if(selectedResult === '2'){
+            results = JSON.parse(Session.get('matchingWGResults')).data;
+          } else {
+            results = JSON.parse(Session.get('matchingInitialResults')).data.concat(JSON.parse(Session.get('matchingWGResults')).data);
+          }
           console.log('results', results);
-          results = mockPostResult.data;
+          let uniqueResults = _.uniqBy(results,'_university_id');
+          console.log('uniqueResults',uniqueResults);
           Meteor.setTimeout(function () {
-            _.forEach(results, function (result, key) {
-              let participant =  Participants.find({_id: result._id}).fetch();
+            _.forEach(uniqueResults, function (result, key) {
+              let stringId = result._university_id.toString();
+              let participant =  Participants.find({_id: stringId}).fetch();
               if(participant[0]){
                 participant = transformParticipant(participant[0], result);
                 Meteor.call('admin.participants.update', participant, function (error, result) {
@@ -360,6 +332,7 @@ let steps = [
                     swal('Error', error.message, 'error');
                   }
                   else {
+                    Session.set('subtab', 'ResultSection');
                   }
                 })
               }
@@ -418,7 +391,6 @@ function displayFileNameDialog(collection) {
                 options['fileName'] = filename;
                 options['download'] = 'all';
                 options['collection'] = collection;
-                debugger;
                 let encoded = jwt.sign(options, 'secret', {expiresIn: 60});
                 Meteor.setTimeout(function () {
                     jsonToCSV(options);
@@ -546,7 +518,6 @@ function generateTableForDB(template, tableName) {
       // get labels from schema schema
       tableHead.append("<th class='animated fadeIn'>" + (_.isNull(schema) ? key : schema.label(key)) + "</th>");
   });
-  debugger;
   tableHead.append("</tr>");
 
   // BODY
