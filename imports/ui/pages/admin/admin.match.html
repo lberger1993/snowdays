@@ -20,41 +20,27 @@
     {{> Template.dynamic template=subtab}}
 </template>
 <template name="BusSection">
-        <style>
+    <style>
                 #myProgress {
-                width: 100%;
-                background-color: rgb(119, 117, 121);
+                    width: 100%;
+                    background-color: rgb(119, 117, 121);
                 }
                 
                 #myBar {
-                width: 0%;
-                height: 30px;
-                background-color: rgb(0, 123, 255);
-                text-align: center;
-                line-height: 30px;
-                color: white;
-                border-color: rgb(5, 0, 10)
-            }
-            </style>
-
-            <script>
-              /*function move() {
-                var elem = document.getElementById("myBar");   
-                var width = 10;
-                var id = setInterval(frame, 10);
-                function frame() {
-                    if (width >= 100) {
-                    clearInterval(id);
-                    alert("Hi I'm an alert!")
-                    } else {
-                    width++; 
-                    elem.style.width = width + '%'; 
-                    elem.innerHTML = width * 1  + '%';
-                    }
+                    width: 0%;
+                    height: 30px;
+                    background-color: rgb(0, 123, 255);
+                    text-align: center;
+                    line-height: 30px;
+                    color: white;
+                    border-color: rgb(5, 0, 10)
                 }
-            }*/
-            
-            </script>
+                .map-container {
+                    width: 100%;
+                    max-width: 100%;
+                    height: 500px;
+                }
+            </style>
 
     <h2>1. Matching Accomodation to Bus Station</h2> 
     <button type="submit" class="sn-btn-blue mb-2"  id="matchingBus">
@@ -65,18 +51,11 @@
         <div id="myBar">0%</div>
     </div>
     <p></p>
-
-    <div>
-            {{#if showTheMapHelper}}
-           <!-- Here if the Session returns its == true this part of the template will be rendered -->
-           <div>
-                   <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1rOo3DbdRAGIlkKHYoBXqXnXC4bU" width="640" height="480"></iframe>
-           </div>
-          {{else}}
-           
-         {{/if}}
-
-   </div>
+    <div class="map-container">
+            <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+            </script>
+        {{> googleMap name="map" options=mapOptions}}
+      </div>
 </template>
 <template name="AccommodationSection" >
    <div>

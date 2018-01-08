@@ -48,3 +48,4 @@ froala:editor
 dynamic-import@0.1.1
 jquery@1.11.10
 http
+dburles:google-maps
