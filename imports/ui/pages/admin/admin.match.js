@@ -51,9 +51,7 @@ const ParticipantsIndices = {
 
 Template.AdminMatchSection.onCreated(function () {
   Session.set('subtab', 'BusSection');
-  debugger;
   GoogleMaps.ready('map', function(map) {
-    debugger;
     mapReady=map;
     //loadMap();
  });
@@ -65,7 +63,6 @@ Template.AdminMatchSection.onCreated(function () {
 
 Template.BusSection.onCreated(function() {
   GoogleMaps.ready('map', function(map) {
-    debugger;
     mapReady=map;
     //loadMap();
  });
@@ -355,17 +352,19 @@ let steps = [
           console.log('uniqueResults',uniqueResults);
           Meteor.setTimeout(function () {
             _.forEach(uniqueResults, function (result, key) {
-              let stringId = result._university_id.toString();
-              let participant =  Participants.find({_id: stringId}).fetch();
-              if(participant[0]){
-                participant = transformParticipant(participant[0], result);
-                Meteor.call('admin.participants.update', participant, function (error, result) {
-                  if (error) {
-                    swal('Error', error.message, 'error');
-                  }
-                  else {
-                    Session.set('subtab', 'ResultSection');
-                  }
+              let Id = result._university_id.toString();
+              let selectedParticipant =  Participants.find({'host': {'id': Id}}).fetch();
+              if(selectedParticipant){
+                _.forEach(selectedParticipant, function(participant, key) {
+                  updatedParticipant = transformParticipant(participant, result);
+                  Meteor.call('admin.participants.update', updatedParticipant, function (error, result) {
+                    if (error) {
+                      swal('Error', error.message, 'error');
+                    }
+                    else {
+                      Session.set('subtab', 'ResultSection');
+                    }
+                  })
                 })
               }
             })
@@ -385,8 +384,16 @@ swal.queue(steps).then(function () {
 
 function transformParticipant(original, modification) {
   if(modification._accommondation_details !== 0) {
-    original.info.accommodation  = modification._accommondation_details.name;
-    original.info.buszone = modification._accommondation_details.bus_zone;
+    if(!original.info) {
+      original['info']= {
+        'accommodation': modification._accommondation_details.name,
+        'buszone': modification._accommondation_details.bus_zone
+      }
+    }
+    else {
+      original.info.accommodation  = modification._accommondation_details.name;
+      original.info.buszone = modification._accommondation_details.bus_zone;
+    }
   }
   return original;
 }
@@ -577,11 +584,9 @@ function loadMap()
      for (var index = 0; index < arrComodations.length; index++) {
        var accommodation = arrComodations[index];
        var arrlatlng= accommodation.coordinates.split(",");
-       //debugger;
        var objLatLng = {lat: parseFloat( arrlatlng[0]),lng: parseFloat( arrlatlng[1])};
        markers=getMultipleMarkersCant(objLatLng,accommodation.capacity ,markers); 
      }
-     debugger;
      var markerCluster = new MarkerClusterer(mapReady.instance, markers,
       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
@@ -592,7 +597,6 @@ function loadMap()
           new google.maps.Point(10, 34));
 
       var arrBusZones= BusZones.find().fetch();
-      debugger;
       for (var index = 0; index < arrBusZones.length; index++) {
         var bus = arrBusZones[index];
         var objLatLng = {lat: bus.lat ,lng: bus.lng };
