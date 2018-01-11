@@ -92,8 +92,8 @@
       "$oid":"5a28e7acb657dad44576bf73"
     },
     "name":"SALEETA_HSB",
-    "address":"Bolzano",
-    "coordinates":"46.4982953,11.3547582",
+    "address":"Piazza Gries, 19, 39100 Bolzano BZ",
+    "coordinates":"46.50378, 11.33465",
     "busZone":"3",
     "capacity":18,
     "isWG":false,
@@ -124,8 +124,8 @@
       "$oid":"5a28e7acb657dad44576bf74"
     },
     "name":"RAINERUM",
-    "address":"Bolzano",
-    "coordinates":"46.4982953,11.3547582",
+    "address":"Dominikanerplatz, 15, 39100 Bozen",
+    "coordinates":"46.4969, 11.35119",
     "busZone":"3",
     "capacity":6,
     "isWG":false,
@@ -156,8 +156,8 @@
       "$oid":"5a28e7acb657dad44576bf75"
     },
     "name":"GALILEI",
-    "address":"Bolzano",
-    "coordinates":"46.4982953,11.3547582",
+    "address":"Via G. Galilei, 39100 Bolzano BZ",
+    "coordinates":"46.48642, 11.33814",
     "busZone":"3",
     "capacity":78,
     "isWG":false,
@@ -188,8 +188,8 @@
       "$oid":"5a28e7acb657dad44576bf76"
     },
     "name":"CARDUCCI",
-    "address":"Bolzano",
-    "coordinates":"46.4982953,11.3547582",
+    "address":"Via Giosuè Carducci, 39100 Bolzano BZ",
+    "coordinates":"46.49637, 11.3505",
     "busZone":"3",
     "capacity":60,
     "isWG":false,
@@ -1725,4 +1725,3 @@
       }
     ]
   }
-]

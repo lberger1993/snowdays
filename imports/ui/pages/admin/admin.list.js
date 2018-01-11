@@ -394,7 +394,6 @@ function generateTable(template, options) {
     let collection = template.collection.get();
     let list = collection.instance.find().fetch();
     let schema = collection.instance.simpleSchema();
-
     let table = $('#participants_table');
     let tableHead = table.find('thead');
     let tableBody = table.find('tbody');

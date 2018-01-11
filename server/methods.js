@@ -362,10 +362,23 @@ Meteor.methods({
         let meteor_response = Meteor.http.call("POST", url + 'with_wg', {data:{"data":build_dict_WG}});
         return {'initial': intial_response, 'second': meteor_response};
         },
+
+//dummy function for the updating of the progress bar
+  'dummyAcc'(id){
+    let res;
+    if(id>=0){
+      console.log("OK, work done!")
+      res = true;
+      console.log(res)
+    }
+    else{
+      res = false;
+    }
+    return res;
+  },
 });
 
 function existsSync(filename) {
   let fullPath = path.join(process.cwd(), '../server/images/uploads/ids/', filename);
   return fs.existsSync(fullPath)
 }
-

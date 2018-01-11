@@ -9,8 +9,8 @@
                 <li class="sn-menu-item nav-item {{isActive 'AccommodationSection'}}" id="accommodation">
                     <a class="sn-nav-link" href><i class="fa fa-home" aria-hidden="true"></i> Accommodation</a>
                 </li>
-                <li class="sn-menu-item nav-item {{isActive 'WGSection'}}" id="wg">
-                    <a class="sn-nav-link" href> WG</a>
+                <li class="sn-menu-item nav-item {{isActive 'ResultSection'}}" id="result">
+                    <a class="sn-nav-link" href> Results</a>
                 </li>
             </ul>
         </div>
@@ -20,41 +20,27 @@
     {{> Template.dynamic template=subtab}}
 </template>
 <template name="BusSection">
-        <style>
+    <style>
                 #myProgress {
-                width: 100%;
-                background-color: rgb(119, 117, 121);
+                    width: 100%;
+                    background-color: rgb(119, 117, 121);
                 }
                 
                 #myBar {
-                width: 0%;
-                height: 30px;
-                background-color: rgb(0, 123, 255);
-                text-align: center;
-                line-height: 30px;
-                color: white;
-                border-color: rgb(5, 0, 10)
-            }
-            </style>
-
-            <script>
-              /*function move() {
-                var elem = document.getElementById("myBar");   
-                var width = 10;
-                var id = setInterval(frame, 10);
-                function frame() {
-                    if (width >= 100) {
-                    clearInterval(id);
-                    alert("Hi I'm an alert!")
-                    } else {
-                    width++; 
-                    elem.style.width = width + '%'; 
-                    elem.innerHTML = width * 1  + '%';
-                    }
+                    width: 0%;
+                    height: 30px;
+                    background-color: rgb(0, 123, 255);
+                    text-align: center;
+                    line-height: 30px;
+                    color: white;
+                    border-color: rgb(5, 0, 10)
                 }
-            }*/
-            
-            </script>
+                .map-container {
+                    width: 100%;
+                    max-width: 100%;
+                    height: 500px;
+                }
+            </style>
 
     <h2>1. Matching Accomodation to Bus Station</h2> 
     <button type="submit" class="sn-btn-blue mb-2"  id="matchingBus">
@@ -65,18 +51,11 @@
         <div id="myBar">0%</div>
     </div>
     <p></p>
-
-    <div>
-            {{#if showTheMapHelper}}
-           <!-- Here if the Session returns its == true this part of the template will be rendered -->
-           <div>
-                   <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1rOo3DbdRAGIlkKHYoBXqXnXC4bU" width="640" height="480"></iframe>
-           </div>
-          {{else}}
-           
-         {{/if}}
-
-   </div>
+    <div class="map-container">
+            <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+            </script>
+        {{> googleMap name="map" options=mapOptions}}
+      </div>
 </template>
 <template name="AccommodationSection" >
    <div>
@@ -87,7 +66,13 @@
                     <i class="fa fa-share-alt" aria-hidden="true"></i> Matching
                 </button>
             </div>
+            
             {{#if isCSVReady}}
+            <div >
+                <button type="submit" class="sn-btn-blue mb-2"  id="saveResult">
+                    <i class="fa fa-download" aria-hidden="true"></i> Save
+                </button>
+            </div>
             <div>
                 <button type="button" class="sn-btn-outline-green sn-full-width" id="download_csv_initial">
                     <i class="fa fa-cloud-download" aria-hidden="true"></i> 1st to CSV 
@@ -126,21 +111,19 @@
 
    </div>
 </template>
-<template name="WGSection">
+<template name="ResultSection">
     <div>
-        <h2>3. Matching WG with Accommodation</h2>
-        {{#if isWGMatchingReady}}
-            <button type="submit" class="sn-btn-blue mb-2"  id="matchingWG">
-                <i class="fa fa-share-alt" aria-hidden="true"></i> Matching
-            </button>
+        <h2>3. Participant Result</h2>
+        <div class='row'>
             <div>
-                <!-- <table class="table table-sm table-hover animated" id="MatchingWG_table" style="margin-top: 1em">
-                    <thead></thead>
-                    <tbody></tbody>
-                </table> -->
+                <button type="button" class="sn-btn-outline-green sn-full-width" id="download_csv_DB">
+                    <i class="fa fa-cloud-download" aria-hidden="true"></i> CSV 
+                </button>
             </div>
-        {{else}}
-            <div>Hello</div>
-        {{/if}}
+        </div>
+        <table class="table table-sm table-hover animated" id="result_table" style="margin-top: 1em">
+            <thead></thead>
+            <tbody></tbody>
+        </table> 
     </div>
 </template>

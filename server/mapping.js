@@ -17,9 +17,9 @@ class geocodingResult{
 }
 Meteor.methods({
     evaluateAccomodation(Id){
-        //console.log('Eval: '+Id);
-        var arrAccomodations=Accommodations.findOne({ _id:Id });
-        //console.log(arrComo);
+        console.log('Eval: '+Id);
+        var idObject = new Meteor.Collection.ObjectID(Id)
+        var arrAccomodations=Accommodations.findOne(idObject);
         var arrBusestops= BusZones.find().fetch();
         var AccomoCoordinates;
       
@@ -27,7 +27,7 @@ Meteor.methods({
         if(arrAccomodations.coordinates=="")
         {
           var geoResult=geocoding(arrAccomodations.address);
-          Accommodations.update({_id:Id}, { $set: { coordinates: geoResult.lat+","+geoResult.lng }});
+          Accommodations.update(Id, { $set: { coordinates: geoResult.lat+","+geoResult.lng }});
           AccomoCoordinates= geoResult.lat+","+geoResult.lng;
         }
         else
@@ -46,23 +46,23 @@ Meteor.methods({
             if(mapResult.duration<minTime)
             {
                 minTime=mapResult.duration;
-                indBus=index;
+                indBus=arrBusestops[index]._id;
                 
             }
 
             
         }
-        Accommodations.update({_id:Id}, { $set: { busZone: indBus+1 }});
-        console.log('updated Accomodation: '+Id+' - BZ:'+(indBus+1));
+        Accommodations.update({_id:idObject}, { $set: { busZone: indBus }});
+        console.log('updated Accomodation: '+Id+' - BZ:'+(indBus));
 
-        return true;
+        return true ;
     }
 
   });
 
 
   function geocoding (address) {
-    //this.unblock();
+    this.unblock();
     var key='AIzaSyAmnTiUl8GlHY5vy6lelf9NtaT1IE5Xg0E';
 
     //call Google
