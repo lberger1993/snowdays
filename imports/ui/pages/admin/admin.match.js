@@ -2,6 +2,7 @@
 import "./admin.match.html";
 import Participants from "/imports/collections/participants";
 import Accommodations from '/imports/collections/accommodations';
+import BusZones from '/imports/collections/buszone';
 import "/imports/ui/components/loader/loader";
 
 import jwt from 'jsonwebtoken';
@@ -53,7 +54,7 @@ Template.AdminMatchSection.onCreated(function () {
   Session.set('subtab', 'BusSection');
   GoogleMaps.ready('map', function(map) {
     mapReady=map;
-    //loadMap();
+    
  });
   Meteor.startup(function () {
     GoogleMaps.load({ v: '3', key: 'AIzaSyAPuyAsNeq6kyq0rXEjBDRfzHQYlQ2vrHw'});
@@ -127,8 +128,10 @@ Template.AdminMatchSection.events({
       }
     },
     'click #matchingBus': function (event, template) {
-      
+      //loadMap();
+
       Meteor.subscribe("accommodations.all");
+      Meteor.subscribe("buszones.all");
       //console.log(AccommodationsT.find({}, {fields: {'_id':1}}).count());
 
       arrComodations=Accommodations.find({}, {fields: {'_id':1}}).fetch();
@@ -579,49 +582,91 @@ function loadMap()
      Meteor.subscribe("accommodations.all");
      Meteor.subscribe("buszones.all");
 
-     var arrComodations=Accommodations.find().fetch();
-     var markers= [];
-     for (var index = 0; index < arrComodations.length; index++) {
-       var accommodation = arrComodations[index];
-       var arrlatlng= accommodation.coordinates.split(",");
-       var objLatLng = {lat: parseFloat( arrlatlng[0]),lng: parseFloat( arrlatlng[1])};
-       markers=getMultipleMarkersCant(objLatLng,accommodation.capacity ,markers); 
-     }
-     var markerCluster = new MarkerClusterer(mapReady.instance, markers,
-      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+     var pinColor1 = "FF6347|8B0000";
+     var pinColor2 = "4682B4|191970";
+     var pinColor3 = "3CB371|006400";
+     var linkHome="https://chart.googleapis.com/chart?chst=d_simple_text_icon_above&chld=|0|00F|home|16|" ;
+     var linkHome2="https://chart.googleapis.com/chart?chst=d_simple_text_icon_above&chld=|0|00F|home|24|" ;
+     var linkBus="https://chart.googleapis.com/chart?chst=d_simple_text_icon_above&chld=|0|00F|bus|24|" ;
 
-      var pinColor = "FE7569";
-      var pinImage = new google.maps.MarkerImage("https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=bus|" + pinColor,
+     var arrComodations=Accommodations.find().fetch();
+
+      var arrBusZones= BusZones.find().fetch();
+      debugger;
+      
+      for (var index = 0; index < arrBusZones.length; index++) {
+        var bus = arrBusZones[index];
+        var linkIcon=linkBus + pinColor1;
+        
+        if(bus._id==2)
+        {
+          linkIcon=linkBus + pinColor2;
+        }else if(bus._id==3)
+        {
+          linkIcon=linkBus + pinColor3;
+        }
+        
+        
+        
+        var pinImage = new google.maps.MarkerImage(linkIcon,
           new google.maps.Size(21, 34),
           new google.maps.Point(0,0),
           new google.maps.Point(10, 34));
-
-      var arrBusZones= BusZones.find().fetch();
-      for (var index = 0; index < arrBusZones.length; index++) {
-        var bus = arrBusZones[index];
-        var objLatLng = {lat: bus.lat ,lng: bus.lng };
-        addMarker(objLatLng,mapReady.instance,(index+1).toString(),pinImage);
-        var regionCoord=[];
-        for (var j = 0; j < arrComodations.length; j++) {
-          var accomodation = arrComodations[j];
-          if(accomodation.busZone==bus._id)
-          {
-            var arrlatlng= accommodation.coordinates.split(",");
-            var objLatLng = {lat: parseFloat( arrlatlng[0]),lng: parseFloat( arrlatlng[1])};
-            regionCoord.push(objLatLng);
-          }
           
-        }
-        addPolygon(mapReady.instance,regionCoord,'#FFCC00',0.8, 2,'#FFCC00', 0.5);
+        var objLatLng = {lat: bus.lat ,lng: bus.lng };
+        addMarker(objLatLng,mapReady.instance,bus._id.toString(),pinImage);
         
       }
+
+      for (var index = 0; index < arrComodations.length; index++) {
+        var accommodation = arrComodations[index];
+        var arrlatlng= accommodation.coordinates.split(",");
+        var objLatLng = {lat: parseFloat( arrlatlng[0]),lng: parseFloat( arrlatlng[1])};
+        
+        var linkIconH=linkHome + pinColor1;
+        if(accommodation.capacity<5)
+        {
+          linkIconH=linkHome + pinColor1;
+          if(accommodation.busZone==2)
+          {
+            linkIconH=linkHome + pinColor2;
+          }else if(accommodation.busZone==3)
+          {
+            linkIconH=linkHome + pinColor3;
+          }
+        }else
+        {
+          linkIconH=linkHome2 + pinColor1;
+          if(accommodation.busZone==2)
+          {
+            linkIconH=linkHome2 + pinColor2;
+          }else if(accommodation.busZone==3)
+          {
+            linkIconH=linkHome2 + pinColor3;
+          }
+        }
+        
+        
+        
+        var pinImage2 = new google.maps.MarkerImage(linkIconH,
+          new google.maps.Size(21, 34),
+          new google.maps.Point(0,0),
+          new google.maps.Point(10, 34));
+          
+        
+        addMarker(objLatLng,mapReady.instance,accommodation.busZone.toString(),pinImage2);
+      }
+      
 
 }
 
 function evalNextAccomodation()
 {
   var co = arrComodations[currentstep]._id._str;
-  var clientResult = Meteor.apply('evaluateAccomodation',
+  //if(co.isWG && co.buszone==-1)
+  if(true)
+  {
+    var clientResult = Meteor.apply('evaluateAccomodation',
     [arrComodations[currentstep]._id._str]
     , {returnStubValue: true},
 
@@ -641,6 +686,20 @@ function evalNextAccomodation()
         //Here have to update the progress of the bar
     }
     );
+  }else
+  {
+    currentstep=currentstep+1;
+    setProgress(currentstep,arrComodations.length );
+    if(currentstep<arrComodations.length)
+    {
+      evalNextAccomodation();
+    }else
+    {
+
+      loadMap();
+    }
+  }
+  
 }
 function setProgress(step, total)
 {

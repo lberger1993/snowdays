@@ -46,14 +46,14 @@ Meteor.methods({
             if(mapResult.duration<minTime)
             {
                 minTime=mapResult.duration;
-                indBus=index;
+                indBus=arrBusestops[index]._id;
                 
             }
 
             
         }
-        Accommodations.update({_id:Id}, { $set: { busZone: indBus+1 }});
-        console.log('updated Accomodation: '+Id+' - BZ:'+(indBus+1));
+        Accommodations.update({_id:idObject}, { $set: { busZone: indBus }});
+        console.log('updated Accomodation: '+Id+' - BZ:'+(indBus));
 
         return true ;
     }
