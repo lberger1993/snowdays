@@ -654,7 +654,7 @@ function loadMap()
           new google.maps.Point(10, 34));
           
         
-        addMarker(objLatLng,mapReady.instance,accommodation.busZone.toString(),pinImage2);
+        addMarker(objLatLng,mapReady.instance,accommodation.name+" "+ accommodation.capacity.toString(),pinImage2);
       }
       
 
