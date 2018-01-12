@@ -33,9 +33,8 @@ isManuallyAssign: {
     optional: true
 },
 capacity: {
-    type: String,
-        max: 10,
-        optional: false
+    type: Number,
+    optional: false
 },
     isWG: {
         type: Boolean,

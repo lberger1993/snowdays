@@ -592,7 +592,6 @@ function loadMap()
      var arrComodations=Accommodations.find().fetch();
 
       var arrBusZones= BusZones.find().fetch();
-      debugger;
       
       for (var index = 0; index < arrBusZones.length; index++) {
         var bus = arrBusZones[index];
@@ -662,12 +661,11 @@ function loadMap()
 
 function evalNextAccomodation()
 {
-  var co = arrComodations[currentstep]._id._str;
   //if(co.isWG && co.buszone==-1)
   if(true)
-  {
+  { 
     var clientResult = Meteor.apply('evaluateAccomodation',
-    [arrComodations[currentstep]._id._str]
+    [arrComodations[currentstep]._id]
     , {returnStubValue: true},
 
       function(err, evalResult) {

@@ -18,7 +18,7 @@ class geocodingResult{
 Meteor.methods({
     evaluateAccomodation(Id){
         console.log('Eval: '+Id);
-        var idObject = new Meteor.Collection.ObjectID(Id)
+        var idObject = Id;
         var arrAccomodations=Accommodations.findOne(idObject);
         var arrBusestops= BusZones.find().fetch();
         var AccomoCoordinates;

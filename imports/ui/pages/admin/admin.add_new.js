@@ -109,14 +109,16 @@ Template.AdminAddNewSection.events({
     let accommodationAddress = target.accommodation_address.value;
     let busZone = target.bus_zone ?  target.bus_zone.value : '';
     let capacity = target.capacity.value;
+    let coordinates = target.coordinates.value;
     
     let accommodation = {
       name: accommodationName,
       address: accommodationAddress,
-      coordinates: '',
+      coordinates: coordinates,
       busZone: busZone,
       capacity: capacity,
-      isManuallyAssign: Session.get('manually')
+      isManuallyAssign: Session.get('manually'),
+      isWG: false
     };
     // create user
     Meteor.call('accommodation.create', accommodation, role, function (error) {
